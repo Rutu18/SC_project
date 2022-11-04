@@ -15,6 +15,7 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
         Define struct to represent capability token data.
     */
     struct AccessControlToken {
+        uint id; 
         string name;
         string gender;
         // uint256 issueDate;
@@ -28,8 +29,8 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
             
     }
     
-    // Mapping from token ID to CapAC
-    mapping(uint256 => CapAC) private _capAC;
+    // Mapping from token ID to AccessControlToken
+    mapping(uint256 => AccessControlToken) private _capAC;
 
     // event handle function
     event OnCapAC_Update(uint256 tokenId, uint _value);
@@ -84,22 +85,21 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
     }
 
     function query_CapAC(uint256 tokenId) public view returns (uint, 
-                                                        uint256, 
-                                                        uint256, 
+                                                        string memory, 
                                                         string memory) {
         // return(id, issuedate, expireddate, authorization);  
         return(_capAC[tokenId].id, 
-            _capAC[tokenId].issuedate,
-            _capAC[tokenId].expireddate,
-            _capAC[tokenId].authorization
+            _capAC[tokenId].name,
+            _capAC[tokenId].gender
+            // _capAC[tokenId].authorization
             );      
     }
 
-    function _mintCapAC(string memory tokenId,
-                        string memory institutionName,
-                        string memory institutionAddr,
-                        string memory patientName,
-                        string memory patientGender) public returns (bool)
+    function _mintCapAC(uint256 tokenId) public returns (bool){
+        _capAC[tokenId].id = 1;
+        _capAC[tokenId].name = "";
+        _capAC[tokenId].gender = "";
+        //_capAC[tokenId].authorization = 'NULL';
     }
 
     function _burnCapAC(uint256 tokenId) private {
@@ -108,13 +108,13 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
 
     // Set time limitation for a CapAC
     function setCapAC_expireddate(uint256 tokenId, 
-                                    uint256 issueddate, 
-                                    uint256 expireddate) public {
+                                    string memory name, 
+                                    string memory gender) public {
         require(ownerOf(tokenId) == msg.sender, "NFT_CapAC: setCapAC_expireddate from incorrect owner");
 
         _capAC[tokenId].id += 1;
-        _capAC[tokenId].issuedate = issueddate;
-        _capAC[tokenId].expireddate = expireddate;
+        _capAC[tokenId].name = name;
+        _capAC[tokenId].gender = gender;
 
         emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
 
@@ -126,7 +126,7 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
         require(ownerOf(tokenId) == msg.sender, "NFT_CapAC: setCapAC_authorization from incorrect owner");
 
         _capAC[tokenId].id += 1;
-        _capAC[tokenId].authorization = accessright;
+        // _capAC[tokenId].authorization = accessright;
 
         emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
    
