@@ -10,32 +10,61 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @title NFT_CapAC
  * This provides a public safeMint, mint, and burn functions for testing purposes
  */
-contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
+contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
     /*
         Define struct to represent capability token data.
     */
+    //Patient
     struct AccessControlToken {
         uint id; 
         string name;
         string gender;
         // uint256 issueDate;
+        string authorization;
+
+
         
         // keep aligned, used to easily return a string array for query
-        string[] authInstitutionNames;
-        address[] authInstitutions;
+        // string[] authInstitutionNames;
+        // address[] authInstitutions;
         
-        uint8 institutionAmount;
+        // uint8 institutionAmount;
         //mapping(address => string) authorizedInstitutions;
             
     }
-    
+
+
+    struct Doctor {
+        address dr_Id; // Address of doctor
+        string d_Name; // Name of doctor
+        string prescription;
+    }
+
+struct HealthRecords{
+        Doctor d;
+        AccessControlToken p;
+        PrescriptionDetails pre;
+        
+    }
+
+
+
     // Mapping from token ID to AccessControlToken
     mapping(uint256 => AccessControlToken) private _capAC;
+
+    mapping(address=>Doctor) DoctorInfo; // Map doctor info
+
+    mapping(address=> mapping(address => HealthRecords)) HealthInfo;
+
 
     // event handle function
     event OnCapAC_Update(uint256 tokenId, uint _value);
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+
+    event DrDetailsAdded(address doctor);
+
+    event HealthRecordsAdded(address dr, address patient);
 
     // The following functions are overrides required by Solidity.
 
@@ -86,12 +115,13 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
 
     function query_CapAC(uint256 tokenId) public view returns (uint, 
                                                         string memory, 
+                                                        string memory,
                                                         string memory) {
         // return(id, issuedate, expireddate, authorization);  
         return(_capAC[tokenId].id, 
             _capAC[tokenId].name,
-            _capAC[tokenId].gender
-            // _capAC[tokenId].authorization
+            _capAC[tokenId].gender,
+            _capAC[tokenId].authorization
             );      
     }
 
@@ -107,10 +137,10 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
     }
 
     // Set time limitation for a CapAC
-    function setCapAC_expireddate(uint256 tokenId, 
+    function setCapAC_gender(uint256 tokenId, 
                                     string memory name, 
                                     string memory gender) public {
-        require(ownerOf(tokenId) == msg.sender, "NFT_CapAC: setCapAC_expireddate from incorrect owner");
+        require(ownerOf(tokenId) == msg.sender, "NFT_ACToken: setCapAC_gender from incorrect owner");
 
         _capAC[tokenId].id += 1;
         _capAC[tokenId].name = name;
@@ -123,12 +153,54 @@ contract NFT_CapAC is ERC721, ERC721Enumerable, Ownable {
     // Assign access rights to a CapAC
     function setCapAC_authorization(uint256 tokenId, 
                                         string memory accessright) public {
-        require(ownerOf(tokenId) == msg.sender, "NFT_CapAC: setCapAC_authorization from incorrect owner");
+        require(ownerOf(tokenId) == msg.sender, "NFT_ACToken: setCapAC_authorization from incorrect owner");
 
         _capAC[tokenId].id += 1;
-        // _capAC[tokenId].authorization = accessright;
+        _capAC[tokenId].authorization = accessright;
 
         emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
    
     }
 }
+
+
+    function setDoctorDetails(string _prescription,address _drId,string memory _name) public OnlyOwner {
+        DoctorInfo[_drId] = Doctor(_prescription,_drId,_name);
+        emit DrDetailsAdded(msg.sender, _drId);
+    }
+    
+    
+    
+    // Function to get Doctor details for admin
+    function getDoctorDetails(address _Id) public OnlyOwner view returns(bool _state,address _drId,string memory _name){
+        _prescription = DoctorInfo[_Id].prescription;
+        _drId = DoctorInfo[_Id].dr_Id;
+        _name = DoctorInfo[_Id].d_Name;
+    }
+    
+
+
+// get total tracker given a tokenId
+    function total(uint256 tokenId) public view returns (uint256) {
+        return _dataTracker[tokenId].length;
+    }
+
+    // query DataTracker given token id
+    function query_DataTracker(uint256 tokenId, uint256 index) public view returns (address, address) {
+        require(index < _dataTracker[tokenId].length, "NFT_Tracker: index out of bounds");
+
+        return(_dataTracker[tokenId][index].sender, 
+            _dataTracker[tokenId][index].receiver
+            );      
+    }
+
+    function transfer(uint256 tokenId, address from, address to) public {
+        // call NFT transfer
+        super.transferFrom(from, to, tokenId);
+
+        // update tracker
+        _dataTracker[tokenId].push( DataTracker(from, to) );
+
+        emit OnDataTracker_Update(tokenId, _dataTracker[tokenId].length);
+    }
+

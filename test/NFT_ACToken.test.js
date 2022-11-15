@@ -4,7 +4,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 const { ZERO_ADDRESS } = constants;
 
-const NFT_CapAC = artifacts.require('NFT_ACToken');
+const NFT_ACToken = artifacts.require('NFT_ACToken');
 
 //get address from json file
 function getAddress(node_name){
@@ -45,7 +45,7 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 		      expect(this.cap_ac[1]).to.be.equal('');
 		    });
 		    it('returns the gender', async function () {
-		      expect(this.cap_ac[2]).to.be.bignumber.equal('0');
+		      expect(this.cap_ac[2]).to.be.equal('');
 		    });
 		    // it('returns the authorization', async function () {
 		    //   expect(this.cap_ac[3]).to.be.equal('NULL');
@@ -61,13 +61,13 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 
 		context('when the given token without CapAC', function () {
 			it('returns the id', async function () {
-			  expect(this.cap_ac[0]).to.be.bignumber.equal('1');
+			  expect(this.cap_ac[0]).to.be.bignumber.equal('0');
 			});
 			it('returns the name', async function () {
-			  expect(this.cap_ac[1]).to.be.bignumber.equal('');
+			  expect(this.cap_ac[1]).to.be.equal('');
 			});
 			it('returns the gender', async function () {
-			  expect(this.cap_ac[2]).to.be.bignumber.equal('0');
+			  expect(this.cap_ac[2]).to.be.equal('');
 			});
 			//it('returns the authorization', async function () {
 			 // expect(this.cap_ac[3]).to.be.equal('');
@@ -83,16 +83,16 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 		describe('setCapAC_gender', function () {
 		  context('when the given address owns CapAC', function () {
 	          it('verify name and gender', async function () {
-	          	await this.token.setCapAC_gender(firstTokenId, 12345, 67890, { from: owner });
+	          	await this.token.setCapAC_gender(firstTokenId, 'bob', 'male', { from: owner });
 	          	this.cap_ac = await this.token.query_CapAC(firstTokenId);
-	          	expect(this.cap_ac[1]).to.be.bignumber.equal('12345');
-	          	expect(this.cap_ac[2]).to.be.bignumber.equal('67890');
+	          	expect(this.cap_ac[1]).to.be.equal('bob');
+	          	expect(this.cap_ac[2]).to.be.equal('male');
 	          });
 		  });
 		  context('when the given address does not own CapAC', function () {
 	          it('reverts', async function () {
 	            await expectRevert(
-	              this.token.setCapAC_gender(firstTokenId, 12345, 67890, { from: other }),
+	              this.token.setCapAC_gender(firstTokenId, 'bob', 'male', { from: other }),
 	              'NFT_ACToken: setCapAC_gender from incorrect owner',
 	            );
 	          });
@@ -111,7 +111,7 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 	          it('reverts', async function () {
 	            await expectRevert(
 	              this.token.setCapAC_authorization(firstTokenId, 'Assign access rights', { from: other }),
-	              'NFT_CapAC: setCapAC_authorization from incorrect owner',
+	              'NFT_ACToken: setCapAC_authorization from incorrect owner',
 	            );
 	          });
 		  });
