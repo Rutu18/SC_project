@@ -116,5 +116,57 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 	          });
 		  });
 		});
+
+		describe('setDoctorDetails', function () {
+		  context('when the given address owns CapAC', function () {
+	          it('verify doctor information with valid doctor ID', async function () {
+	          	await this.token.setDoctorDetails(firstTokenId, owner, 'Doctor Name 1', 'Prescription 1', { from: owner });
+	          	this.doctor = await this.token.getDoctorDetails(firstTokenId,owner);
+	          	expect(this.doctor[1]).to.be.equal('Doctor Name 1');
+	          	expect(this.doctor[2]).to.be.equal('Prescription 1');
+	          });
+	          it('verify doctor information without valid doctor ID', async function () {
+	          	this.doctor = await this.token.getDoctorDetails(firstTokenId,other);
+	          	expect(this.doctor[1]).to.be.equal('');
+	          	expect(this.doctor[2]).to.be.equal('');
+	          });
+		  });
+		  context('when the given address does not own CapAC', function () {
+	          it('reverts', async function () {
+	            await expectRevert(
+	              this.token.setDoctorDetails(firstTokenId, owner, 'Doctor Name 1', 'Prescription 1', { from: other }),
+	              'NFT_ACToken: setDoctorDetails from incorrect owner',
+	            );
+	          });
+		  });
+		});
+
+		// here is tracker unit test cases
+		context('when tracker is default', function () {
+			beforeEach(async function () {
+				// this.tracker0 = await this.token.query_DataTracker(firstTokenId, 0);
+				this.tracker_length = await this.token.total_tracker(firstTokenId);
+			});
+			it('return length of tracker', async function () {
+			  	expect(this.tracker_length).to.be.equal(0);
+			});
+		});
+
+		describe('NFT_Tracker transfer by owner', function () {
+			beforeEach(async function () {
+				await this.token.transfer(firstTokenId, owner, other, { from: owner });
+				this.tracker_length = await this.token.total_tracker(firstTokenId);
+				this.tracker = await this.token.query_DataTracker(firstTokenId, this.tracker_length-1);
+			});
+			it('return owner address by sender', async function () {
+			  	expect(this.tracker[0]).to.be.equal(owner);
+			});
+			it('return other address by receiver', async function () {
+			  	expect(this.tracker[1]).to.be.equal(other);
+			});
+			it('return length of tracker', async function () {
+			  	expect(this.tracker_length).to.be.equal(1);
+			});
+		});
 	});
 });
