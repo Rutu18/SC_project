@@ -22,7 +22,10 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
         // uint256 issueDate;
         string authorization;
 
+        mapping(address=>Doctor) DoctorInfo; // Map doctor info
 
+        // define a tracker array
+        DataTracker[] _dataTracker;
         
         // keep aligned, used to easily return a string array for query
         // string[] authInstitutionNames;
@@ -35,36 +38,46 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
 
 
     struct Doctor {
-        address dr_Id; // Address of doctor
-        string d_Name; // Name of doctor
+        string name; // Name of doctor
         string prescription;
     }
 
-struct HealthRecords{
-        Doctor d;
-        AccessControlToken p;
-        PrescriptionDetails pre;
-        
+    /*
+        Define struct to represent data tracker object.
+    */
+    struct DataTracker {
+        address sender;     // from previous owner
+        address receiver;   // to current owner
     }
+
+// struct HealthRecords{
+//         string Doctor d;
+//         string AccessControlToken p;
+//         string PrescriptionDetails pre;
+        
+//     }
 
 
 
     // Mapping from token ID to AccessControlToken
     mapping(uint256 => AccessControlToken) private _capAC;
 
-    mapping(address=>Doctor) DoctorInfo; // Map doctor info
+    
 
-    mapping(address=> mapping(address => HealthRecords)) HealthInfo;
+    // mapping(address=> mapping(address => HealthRecords)) HealthInfo;
 
 
     // event handle function
     event OnCapAC_Update(uint256 tokenId, uint _value);
 
+    // event handle function
+    event OnDataTracker_Update(uint256 tokenId, uint _value);
+
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    event DrDetailsAdded(address doctor);
+    // event DrDetailsAdded(address doctor);
 
-    event HealthRecordsAdded(address dr, address patient);
+    // event HealthRecordsAdded(address dr, address patient);
 
     // The following functions are overrides required by Solidity.
 
@@ -161,36 +174,46 @@ struct HealthRecords{
         emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
    
     }
-}
 
+    //Function to add Dr details
+    function setDoctorDetails(uint256 tokenId,
+                            address doctor_Id,
+                            string memory _name, 
+                            string memory _prescription) public {
 
-    function setDoctorDetails(string _prescription,address _drId,string memory _name) public OnlyOwner {
-        DoctorInfo[_drId] = Doctor(_prescription,_drId,_name);
-        emit DrDetailsAdded(msg.sender, _drId);
+        require(ownerOf(tokenId) == msg.sender, "NFT_ACToken: setDoctorDetails from incorrect owner");
+        
+        _capAC[tokenId].id += 1;
+        _capAC[tokenId].DoctorInfo[doctor_Id].name=_name;
+        _capAC[tokenId].DoctorInfo[doctor_Id].prescription=_prescription;
+
+        emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
     }
-    
-    
-    
+
     // Function to get Doctor details for admin
-    function getDoctorDetails(address _Id) public OnlyOwner view returns(bool _state,address _drId,string memory _name){
-        _prescription = DoctorInfo[_Id].prescription;
-        _drId = DoctorInfo[_Id].dr_Id;
-        _name = DoctorInfo[_Id].d_Name;
+    function getDoctorDetails(uint256 tokenId, 
+                                address doctor_Id) public view returns(uint,
+                                                                        string memory, 
+                                                                        string memory){
+        // string memory _name = _capAC[tokenId].DoctorInfo[doctor_Id].name;
+        // string memory _prescription = _capAC[tokenId].DoctorInfo[doctor_Id].prescription;
+
+        return(_capAC[tokenId].id,
+            _capAC[tokenId].DoctorInfo[doctor_Id].name,
+                _capAC[tokenId].DoctorInfo[doctor_Id].prescription);
     }
-    
 
-
-// get total tracker given a tokenId
-    function total(uint256 tokenId) public view returns (uint256) {
-        return _dataTracker[tokenId].length;
+    // get total tracker given a tokenId
+    function total_tracker(uint256 tokenId) public view returns (uint256) {
+        return _capAC[tokenId]._dataTracker.length;
     }
 
     // query DataTracker given token id
     function query_DataTracker(uint256 tokenId, uint256 index) public view returns (address, address) {
-        require(index < _dataTracker[tokenId].length, "NFT_Tracker: index out of bounds");
+        require(index < _capAC[tokenId]._dataTracker.length, "NFT_Tracker: index out of bounds");
 
-        return(_dataTracker[tokenId][index].sender, 
-            _dataTracker[tokenId][index].receiver
+        return(_capAC[tokenId]._dataTracker[index].sender, 
+            _capAC[tokenId]._dataTracker[index].receiver
             );      
     }
 
@@ -199,8 +222,12 @@ struct HealthRecords{
         super.transferFrom(from, to, tokenId);
 
         // update tracker
-        _dataTracker[tokenId].push( DataTracker(from, to) );
+        _capAC[tokenId]._dataTracker.push( DataTracker(from, to) );
 
-        emit OnDataTracker_Update(tokenId, _dataTracker[tokenId].length);
+        emit OnDataTracker_Update(tokenId, _capAC[tokenId]._dataTracker.length);
     }
+// ******* Before this bracket **********
+}
+
+
 
