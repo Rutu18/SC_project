@@ -23,6 +23,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
         string authorization;
 
         mapping(address=>Doctor) DoctorInfo; // Map doctor info
+        mapping(address=>EMR) EMRInfo; // Map EMR info
 
         // define a tracker array
         DataTracker[] _dataTracker;
@@ -50,12 +51,11 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
         address receiver;   // to current owner
     }
 
-// struct HealthRecords{
-//         string Doctor d;
-//         string AccessControlToken p;
-//         string PrescriptionDetails pre;
-        
-//     }
+    struct HealthRecords {
+        string patientname;
+        string authInstitutionNames;
+        string treatment;    
+   }
 
 
 
@@ -177,7 +177,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
 
     //Function to add Dr details
     function setDoctorDetails(uint256 tokenId,
-                            address doctor_Id,
+                            address EMR_Id,
                             string memory _name, 
                             string memory _prescription) public {
 
@@ -202,6 +202,44 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
             _capAC[tokenId].DoctorInfo[doctor_Id].name,
                 _capAC[tokenId].DoctorInfo[doctor_Id].prescription);
     }
+
+
+    //Function to add EMR details
+    function setEMRDetails(uint256 tokenId,
+                            address doctor_Id,
+                            string memory _patientname, 
+                            string memory _authInstitutionNames,
+                            string memory _tretment) public {
+
+        require(ownerOf(tokenId) == msg.sender, "NFT_ACToken: setEMRDetails from incorrect owner");
+        
+        _capAC[tokenId].id += 1;
+        _capAC[tokenId].EMRInfo[EMR_Id].patientname=_patientname;
+        _capAC[tokenId].EMRInfo[EMR_Id].authInstitutionNames=_authInstitutionNames;
+        _capAC[tokenId].EMRInfo[EMR_Id].treatment=_treatment;
+
+        emit OnCapAC_Update(tokenId, _capAC[tokenId].id);
+    }
+
+    // Function to get EMR details for admin
+    function getEMRDetails(uint256 tokenId, 
+                                address EMR_Id) public view returns(uint,
+                                                                        string memory, 
+                                                                        string memory,
+                                                                        string memory){
+
+        // string memory _name = _capAC[tokenId].DoctorInfo[doctor_Id].name;
+        // string memory _prescription = _capAC[tokenId].DoctorInfo[doctor_Id].prescription;
+
+        return(_capAC[tokenId].id,
+            _capAC[tokenId].EMRInfo[EMR_Id].patientname,
+                _capAC[tokenId].EMRInfo[EMR_Id].authInstitutionNames,
+                  _capAC[tokenId].EMRInfo[EMR_Id].treatment);
+    }
+
+
+
+
 
     // get total tracker given a tokenId
     function total_tracker(uint256 tokenId) public view returns (uint256) {
