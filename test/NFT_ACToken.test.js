@@ -139,7 +139,35 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 	            );
 	          });
 		  });
+
+        describe('setEMRDetails', function () {
+		  context('when the given address owns CapAC', function () {
+	          it('verify EMR information with valid EMR ID', async function () {
+	          	await this.token.setEMRDetails(firstTokenId, owner, 'Patient Name 1', 'AuthInstitutionNames 1', 'Treatment 1', { from: owner });
+	          	this.EMR = await this.token.getEMRDetails(firstTokenId,owner);
+	          	expect(this.EMR[1]).to.be.equal('Patient Name 1');
+	          	expect(this.EMR[2]).to.be.equal('AuthInstitutionNames 1');
+	          	expect(this.EMR[3]).to.be.equal('Treatment 1');
+	          });
+
+	          it('verify EMR information without valid EMR ID', async function () {
+	          	this.EMR = await this.token.getEMRDetails(firstTokenId,other);
+	          	expect(this.EMR[1]).to.be.equal('');
+	          	expect(this.EMR[2]).to.be.equal('');
+	          	expect(this.EMR[3]).to.be.equal('');
+	          });
+		  });
+		  context('when the given address does not own CapAC', function () {
+	          it('reverts', async function () {
+	            await expectRevert(
+	              this.token.setEMRDetails(firstTokenId, owner, 'Patient Name 1', 'AuthInstitutionNames 1', 'Treatment 1', { from: other }),
+	              'NFT_ACToken: setEMRDetails from incorrect owner',
+	            );
+	          });
+		  });
 		});
+
+
 
 		// here is tracker unit test cases
 		context('when tracker is default', function () {
