@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -51,7 +51,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
         address receiver;   // to current owner
     }
 
-    struct HealthRecords {
+    struct EMR {
         string patientname;
         string authInstitutionNames;
         string treatment;    
@@ -177,7 +177,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
 
     //Function to add Dr details
     function setDoctorDetails(uint256 tokenId,
-                            address EMR_Id,
+                            address doctor_Id,
                             string memory _name, 
                             string memory _prescription) public {
 
@@ -206,7 +206,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
 
     //Function to add EMR details
     function setEMRDetails(uint256 tokenId,
-                            address doctor_Id,
+                            address EMR_Id,
                             string memory _patientname, 
                             string memory _authInstitutionNames,
                             string memory _tretment) public {
