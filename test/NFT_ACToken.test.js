@@ -139,6 +139,7 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 	            );
 	          });
 		  });
+		});
 
         describe('setEMRDetails', function () {
 		  context('when the given address owns CapAC', function () {
@@ -166,7 +167,6 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 	          });
 		  });
 		});
-
 
 
 		// here is tracker unit test cases
@@ -198,3 +198,4 @@ contract('NFT_ACToken', function ([ owner, other ]) {
 		});
 	});
 });
+
