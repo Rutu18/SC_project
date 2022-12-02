@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-// SPDX-License-Identifier: MIT
-pragma solidity ^ 0.8;
+pragma solidity ^ 0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -210,7 +208,7 @@ contract NFT_ACToken is ERC721, ERC721Enumerable, Ownable {
                             address EMR_Id,
                             string memory _patientname, 
                             string memory _authInstitutionNames,
-                            string memory _tretment) public {
+                            string memory _treatment) public {
 
         require(ownerOf(tokenId) == msg.sender, "NFT_ACToken: setEMRDetails from incorrect owner");
         
