@@ -62,16 +62,16 @@ class NFT_CapAC(object):
 		else:
 			return None
 
-	## setCapAC_expireddate
-	def CapAC_expireddate(self, tokenId, ini_date, exp_date):
+	## CapAC_gender
+	def CapAC_gender(self, tokenId, str_name, str_gender):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.setCapAC_expireddate(int(tokenId), ini_date, exp_date).transact({'from': self.web3.eth.coinbase})
+			tx_hash = self.contract.functions.setCapAC_gender(int(tokenId), str_name, str_gender).transact({'from': self.web3.eth.coinbase})
 			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
 
-	## setCapAC_authorization
+	## CapAC_authorization
 	def CapAC_authorization(self, tokenId, ac_right):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
@@ -109,7 +109,7 @@ def define_and_get_arguments(args=sys.argv[1:]):
                         1-query_CapAC, \
                         2-mint_CapAC, \
                         3-burn_CapAC, \
-                        4-CapAC_expireddate, \
+                        4-setCapAC_gender, \
                         5-CapAC_authorization")
 
     parser.add_argument("--op_status", type=int, default="0", 
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
 	httpProvider = NFT_CapAC.getAddress('HttpProvider')
 	contractAddr = NFT_CapAC.getAddress('NFT_CapAC')
-	contractConfig = '../build/contracts/NFT_CapAC.json'
+	contractConfig = '../build/contracts/NFT_ACToken.json'
 
 	## new NFT_CapAC instance
 	myToken = NFT_CapAC(httpProvider, contractAddr, contractConfig)
@@ -178,12 +178,12 @@ if __name__ == "__main__":
 		tokenId=NFT_CapAC.getAddress(args.id)
 
 		#set issue date and expired date
-		issue_time = 1661530882369
-		expire_time = 1661617282369
+		name = 'bob'
+		gender = 'male'
 
-		receipt = myToken.CapAC_expireddate(tokenId, issue_time, expire_time)
+		receipt = myToken.CapAC_gender(tokenId, name, gender)
 		if(receipt!=None):
-			print('Token {} setCapAC_expireddate'.format(tokenId))
+			print('Token {} setCapAC_gender'.format(tokenId))
 			print(receipt)
 		else:
 			print('Token {} is not existed'.format(tokenId))
