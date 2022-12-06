@@ -90,10 +90,10 @@ class NFT_CapAC(object):
 			return None
 
    ## DoctorDetails- Get Dr Details
-	def DoctorDetails(self, tokenId, add_id):
+	def DoctorDetails(self, tokenId, str_id):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.getDoctorDetails(int(tokenId), add_id).transact({'from': self.web3.eth.coinbase})
+			tx_hash = self.contract.functions.getDoctorDetails(int(tokenId), str_id).transact({'from': self.web3.eth.coinbase})
 			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
@@ -238,12 +238,12 @@ if __name__ == "__main__":
 
 		#Dr set details
 	elif(args.test_op==6):
-		tokenId=NFT_CapAC.getAddress(args.id)
+		tokenId=NFT_CapAC.getAddress(args.value)
 
 		name = 'Doctor Name 1'
 		prescription = 'Prescription 1'
 
-		receipt = myToken._DoctorDetails(tokenId, name, prescription)
+		receipt = myToken._DoctorDetails(tokenId, str_drid, name, prescription)
 		if(receipt!=None):
 			print('Token {} setDoctorDetails'.format(tokenId))
 			print(receipt)
