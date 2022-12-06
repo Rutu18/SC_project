@@ -80,6 +80,44 @@ class NFT_CapAC(object):
 		else:
 			return None
 
+	## _DoctorDetails- Set Dr Details		
+	def _DoctorDetails(self, tokenId, str_drid, str_name, str_prescription):
+		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
+		if(token_existed):
+			tx_hash = self.contract.functions.setDoctorDetails(int(tokenId), str_drid, str_name, str_prescription).transact({'from': self.web3.eth.coinbase})
+			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+		else:
+			return None
+
+   ## DoctorDetails- Get Dr Details
+	def DoctorDetails(self, tokenId, add_id):
+		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
+		if(token_existed):
+			tx_hash = self.contract.functions.getDoctorDetails(int(tokenId), add_id).transact({'from': self.web3.eth.coinbase})
+			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+		else:
+			return None
+
+	#EMR- Set Details
+	def Set_EMR(self, tokenId, str_patientname, str_authInstitutionNames, str__treatment):
+		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
+		if(token_existed):
+			tx_hash = self.contract.functions.setEMRDetails(int(tokenId), str_patientname, str_authInstitutionNames, str__treatment ).transact({'from': self.web3.eth.coinbase})
+			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+		else:
+			return None
+
+	#EMR- Get Details
+	def Get_EMR(self, tokenId, add_id):
+		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
+		if(token_existed):
+			tx_hash = self.contract.functions.getCapAC_gender(int(tokenId), str_name, str_gender).transact({'from': self.web3.eth.coinbase})
+			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+		else:
+			return None
+
+
+
 	##get owner of a token id
 	def ownerToken(self, tokenId):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
@@ -110,7 +148,9 @@ def define_and_get_arguments(args=sys.argv[1:]):
                         2-mint_CapAC, \
                         3-burn_CapAC, \
                         4-setCapAC_gender, \
-                        5-CapAC_authorization")
+                        5-CapAC_authorization\
+                        6-setCapAC_DoctorDetails\
+                        7- DoctorDetails")
 
     parser.add_argument("--op_status", type=int, default="0", 
                         help="input sub operation")
@@ -194,7 +234,34 @@ if __name__ == "__main__":
 			print('Token {} setCapAC_authorization'.format(tokenId))
 			print(receipt)
 		else:
+			print('Token {} is not existed'.format(tokenId))
+
+		#Dr set details
+	elif(args.test_op==6):
+		tokenId=NFT_CapAC.getAddress(args.id)
+
+		name = 'Doctor Name 1'
+		prescription = 'Prescription 1'
+
+		receipt = myToken._DoctorDetails(tokenId, name, prescription)
+		if(receipt!=None):
+			print('Token {} setDoctorDetails'.format(tokenId))
+			print(receipt)
+		else:
+			print('Token {} is not existed'.format(tokenId))
+		
+		#Dr set details
+	elif(args.test_op==7):
+		tokenId=NFT_CapAC.getAddress(args.id)
+
+		receipt = myToken.DoctorDetails(tokenId, args.value)
+		if(receipt!=None):
+			print('Token {} getDoctorDetails'.format(tokenId))
+			print(receipt)
+		else:
 			print('Token {} is not existed'.format(tokenId))		
+
+
 	else:
 		balance = myToken.getBalance(accounts[0])
 		total_supply = myToken.query_totalSupply()
