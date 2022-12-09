@@ -4,8 +4,10 @@
 "host_account":"0x0627418416acdb62c549642f84001dfe6f80d119",
 "other_account":"0xcc86947dbb222de37f3d5cd7d302ef60019a4ed5",
 "doctor_account":"0x4586947dbb222de37f3d5cd7d302ef60019a4ed5",
+"EMR":"0x7906947dbb222de37f3d5cd7d302ef60019a4ed5",
 "token1": "5041",
 "token2": "5042",
 "token3": "5043",
-"token4": "5044"
+"token4": "5044",
+"token4": "5045"
 }
