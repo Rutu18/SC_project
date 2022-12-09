@@ -103,23 +103,26 @@ class NFT_CapAC(object):
 			return None
 
 	#EMR- Set Details
-	def Set_EMR(self, tokenId, str_patientname, str_authInstitutionNames, str__treatment):
+	def Set_EMR(self, tokenId, str_emrid, str_patientname, str_authInstitutionNames, str__treatment):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.setEMRDetails(int(tokenId), str_patientname, str_authInstitutionNames, str__treatment ).transact({'from': self.web3.eth.coinbase})
+			## Change account address to EIP checksum format
+			checksumAddr = Web3.toChecksumAddress(str_emrid)
+			tx_hash = self.contract.functions.setEMRDetails(int(tokenId), checksumAddr, str_patientname, str_authInstitutionNames, str__treatment).transact({'from': self.web3.eth.coinbase})
 			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
 
 	#EMR- Get Details
-	def Get_EMR(self, tokenId, add_id):
+	def Get_EMR(self, tokenId, str_emrid):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			return = self.contract.functions.getCapAC_gender(int(tokenId), str_name, str_gender).call({'from': self.web3.eth.coinbase})
+			## Change account address to EIP checksum format
+			checksumAddr = Web3.toChecksumAddress(str_drid)
+			return self.contract.functions.getEMRDetails(int(tokenId), checksumAddr).call({'from': self.web3.eth.coinbase})
 			# return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
-
 
 
 	##get owner of a token id
@@ -154,7 +157,9 @@ def define_and_get_arguments(args=sys.argv[1:]):
                         4-setCapAC_gender, \
                         5-CapAC_authorization\
                         6-setCapAC_DoctorDetails\
-                        7- DoctorDetails")
+                        7- DoctorDetails\
+                        8- SetEMR\
+                        9- GetEMR")
 
     parser.add_argument("--op_status", type=int, default="0", 
                         help="input sub operation")
@@ -170,6 +175,15 @@ def define_and_get_arguments(args=sys.argv[1:]):
 
     parser.add_argument("--prescription", type=str, default="Prescription 1", 
                         help="input prescription")
+
+    parser.add_argument("--patientname", type=str, default=" Name 1", 
+                        help="input patientname")
+
+    parser.add_argument("--authInstitutionNames", type=str, default="XYZ", 
+                        help="input authInstitutionNames")
+
+    parser.add_argument("--treatment", type=str, default="medic", 
+                        help="input treatment")
 
     args = parser.parse_args(args=args)
     return args
@@ -262,7 +276,7 @@ if __name__ == "__main__":
 		else:
 			print('Token {} is not existed'.format(tokenId))
 		
-		#Dr set details
+		#Dr get details
 	elif(args.test_op==7):
 		tokenId=NFT_CapAC.getAddress(args.id)
 
@@ -273,7 +287,37 @@ if __name__ == "__main__":
 			print('Token {} getDoctorDetails'.format(tokenId))
 			print(receipt)
 		else:
-			print('Token {} is not existed'.format(tokenId))		
+			print('Token {} is not existed'.format(tokenId))	
+
+		#EMR set details
+	elif(args.test_op==8):
+		tokenId=NFT_CapAC.getAddress(args.id)
+
+		str_emrid = NFT_CapAC.getAddress(args.value)
+
+		patientname = args.patientname
+		authInstitutionNames = args.authInstitutionNames
+		treatment = args.treatment
+
+		receipt = myToken.Set_EMR(tokenId, str_emrid, patientname, authInstitutionNames, treatment)
+		if(receipt!=None):
+			print('Token {} setEMRDetails'.format(tokenId))
+			print(receipt)
+		else:
+			print('Token {} is not existed'.format(tokenId))	
+
+	    #EMR get details
+	elif(args.test_op==9):
+		tokenId=NFT_CapAC.getAddress(args.id)
+
+		str_emrid = NFT_CapAC.getAddress(args.value)
+
+		receipt = myToken.get_EMR(tokenId, str_emrid)
+		if(receipt!=None):
+			print('Token {} getEMRDetails'.format(tokenId))
+			print(receipt)
+		else:
+			print('Token {} is not existed'.format(tokenId))
 
 
 	else:
