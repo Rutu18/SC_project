@@ -81,20 +81,24 @@ class NFT_CapAC(object):
 			return None
 
 	## _DoctorDetails- Set Dr Details		
-	def _DoctorDetails(self, tokenId, str_drid, str_name, str_prescription):
+	def set_DoctorDetails(self, tokenId, str_drid, str_name, str_prescription):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.setDoctorDetails(int(tokenId), str_drid, str_name, str_prescription).transact({'from': self.web3.eth.coinbase})
+			## Change account address to EIP checksum format
+			checksumAddr = Web3.toChecksumAddress(str_drid)
+			tx_hash = self.contract.functions.setDoctorDetails(int(tokenId), checksumAddr, str_name, str_prescription).transact({'from': self.web3.eth.coinbase})
 			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
 
-   ## DoctorDetails- Get Dr Details
-	def DoctorDetails(self, tokenId, str_id):
+   ## get_DoctorDetails- Get Dr Details
+	def get_DoctorDetails(self, tokenId, str_drid):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.getDoctorDetails(int(tokenId), str_id).transact({'from': self.web3.eth.coinbase})
-			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+			## Change account address to EIP checksum format
+			checksumAddr = Web3.toChecksumAddress(str_drid)
+			return self.contract.functions.getDoctorDetails(int(tokenId), checksumAddr).call({'from': self.web3.eth.coinbase})
+			# return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
 
@@ -111,8 +115,8 @@ class NFT_CapAC(object):
 	def Get_EMR(self, tokenId, add_id):
 		token_existed = self.contract.functions.exists(int(tokenId)).call({'from': self.web3.eth.coinbase})
 		if(token_existed):
-			tx_hash = self.contract.functions.getCapAC_gender(int(tokenId), str_name, str_gender).transact({'from': self.web3.eth.coinbase})
-			return self.web3.eth.wait_for_transaction_receipt(tx_hash)
+			return = self.contract.functions.getCapAC_gender(int(tokenId), str_name, str_gender).call({'from': self.web3.eth.coinbase})
+			# return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 		else:
 			return None
 
@@ -160,6 +164,12 @@ def define_and_get_arguments(args=sys.argv[1:]):
 
     parser.add_argument("--value", type=str, default="", 
                         help="input value")
+
+    parser.add_argument("--name", type=str, default="Doctor Name 1", 
+                        help="input name")
+
+    parser.add_argument("--prescription", type=str, default="Prescription 1", 
+                        help="input prescription")
 
     args = parser.parse_args(args=args)
     return args
@@ -238,12 +248,14 @@ if __name__ == "__main__":
 
 		#Dr set details
 	elif(args.test_op==6):
-		tokenId=NFT_CapAC.getAddress(args.value)
+		tokenId=NFT_CapAC.getAddress(args.id)
 
-		name = 'Doctor Name 1'
-		prescription = 'Prescription 1'
+		str_drid = NFT_CapAC.getAddress(args.value)
 
-		receipt = myToken._DoctorDetails(tokenId, str_drid, name, prescription)
+		name = args.name
+		prescription = args.prescription
+
+		receipt = myToken.set_DoctorDetails(tokenId, str_drid, name, prescription)
 		if(receipt!=None):
 			print('Token {} setDoctorDetails'.format(tokenId))
 			print(receipt)
@@ -254,7 +266,9 @@ if __name__ == "__main__":
 	elif(args.test_op==7):
 		tokenId=NFT_CapAC.getAddress(args.id)
 
-		receipt = myToken.DoctorDetails(tokenId, args.value)
+		str_drid = NFT_CapAC.getAddress(args.value)
+
+		receipt = myToken.get_DoctorDetails(tokenId, str_drid)
 		if(receipt!=None):
 			print('Token {} getDoctorDetails'.format(tokenId))
 			print(receipt)
