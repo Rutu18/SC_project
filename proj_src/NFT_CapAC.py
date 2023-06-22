@@ -176,7 +176,7 @@ def define_and_get_arguments(args=sys.argv[1:]):
     parser.add_argument("--prescription", type=str, default="Prescription 1", 
                         help="input prescription")
 
-    parser.add_argument("--patientname", type=str, default=" Name 1", 
+    parser.add_argument("--patientname", type=str, default= "bob", 
                         help="input patientname")
 
     parser.add_argument("--authInstitutionNames", type=str, default="XYZ", 
@@ -240,10 +240,21 @@ if __name__ == "__main__":
 			print('Token {} is not existed'.format(tokenId))
 	elif(args.test_op==4):
 		tokenId=NFT_CapAC.getAddress(args.id)
+		
+    # JSON Code to read demo.json file
+		f = open ('data.json')
+		data = json.load(f)
+		for i in data['patient_details']:
+			print(i)
+
+		f.close()
+		
+
+
 
 		#set issue date and expired date
-		name = 'bob'
-		gender = 'male'
+		name = ''
+		gender = ''
 
 		receipt = myToken.CapAC_gender(tokenId, name, gender)
 		if(receipt!=None):
