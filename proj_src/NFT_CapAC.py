@@ -199,7 +199,7 @@ if __name__ == "__main__":
 	## new NFT_CapAC instance
 	myToken = NFT_CapAC(httpProvider, contractAddr, contractConfig)
 
-	accounts = myToken.getAccounts()
+	# accounts = myToken.getAccounts()
 
 	## switch test cases
 	if(args.test_op==1):
@@ -242,19 +242,20 @@ if __name__ == "__main__":
 		tokenId=NFT_CapAC.getAddress(args.id)
 		
     # JSON Code to read demo.json file
-		f = open ('data.json')
+		f = open ('demo.json')
 		data = json.load(f)
-		for i in data['patient_details']:
-			print(i)
-
+		# for i in data['patient_details']:
+		# 	print(i)
+		print(data['id'])
+		print(data['name'])
 		f.close()
 		
 
 
 
 		#set issue date and expired date
-		name = ''
-		gender = ''
+		name = data['name']
+		gender = data['gender']
 
 		receipt = myToken.CapAC_gender(tokenId, name, gender)
 		if(receipt!=None):
